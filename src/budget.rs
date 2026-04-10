@@ -398,8 +398,10 @@ d: *A
 e: *A
 "#;
 
-        let mut b = Budget::default();
-        b.max_aliases = 3; // set a tiny limit for the test
+        let b = Budget {
+            max_aliases: 3, // set a tiny limit for the test
+            ..Budget::default()
+        };
 
         let rep = check_yaml_budget(y, &b).unwrap();
         assert!(matches!(rep.breached, Some(BudgetBreach::Aliases { .. })));
@@ -417,8 +419,10 @@ e: *A
             y.push(']');
         }
 
-        let mut b = Budget::default();
-        b.max_depth = 150;
+        let b = Budget {
+            max_depth: 150,
+            ..Budget::default()
+        };
 
         let rep = check_yaml_budget(&y, &b).unwrap();
         assert!(matches!(rep.breached, Some(BudgetBreach::Depth { .. })));
@@ -428,8 +432,10 @@ e: *A
     fn anchors_limit_trips() {
         // Three distinct anchors defined on scalar nodes
         let y = "a: &A 1\nb: &B 2\nc: &C 3\n";
-        let mut b = Budget::default();
-        b.max_anchors = 2;
+        let b = Budget {
+            max_anchors: 2,
+            ..Budget::default()
+        };
         let rep = check_yaml_budget(y, &b).unwrap();
         assert!(matches!(
             rep.breached,

@@ -29,9 +29,9 @@ fn test_is_u64_and_as_u64() {
 
 #[test]
 fn test_is_f64_and_as_f64() {
-    let float = Number::from(3.14);
+    let float = Number::from(2.75);
     assert!(float.is_f64());
-    assert_eq!(float.as_f64(), Some(3.14));
+    assert_eq!(float.as_f64(), Some(2.75));
 
     let int = Number::from(10);
     assert!(!int.is_f64());
@@ -43,7 +43,7 @@ fn test_is_nan() {
     let nan = Number::from(f64::NAN);
     assert!(nan.is_nan());
 
-    let float = Number::from(3.14);
+    let float = Number::from(2.75);
     assert!(!float.is_nan());
 
     let int = Number::from(5);
@@ -75,8 +75,8 @@ fn test_parse_negative_integer() {
 
 #[test]
 fn test_parse_float() {
-    let n = "3.14".parse::<Number>().unwrap();
-    assert_eq!(n, Number::from(3.14));
+    let n = "2.75".parse::<Number>().unwrap();
+    assert_eq!(n, Number::from(2.75));
 }
 
 #[test]
