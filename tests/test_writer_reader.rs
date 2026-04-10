@@ -43,7 +43,7 @@ fn test_large_reader_input() {
     let value: serde_yaml::Value = serde_yaml::from_reader(reader).unwrap();
 
     if let serde_yaml::Value::Mapping(map) = value {
-        assert!(map.len() > 0);
+        assert!(!map.is_empty());
     } else {
         panic!("Expected mapping");
     }

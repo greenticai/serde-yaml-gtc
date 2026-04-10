@@ -12,12 +12,11 @@ fn collect_test_inputs(base: &Path) -> std::io::Result<Vec<PathBuf>> {
     for entry in fs::read_dir(base)? {
         let entry = entry?;
         let path = entry.path();
-        if path.is_file() {
-            if let Some(ext) = path.extension() {
-                if ext == "yaml" {
-                    inputs.push(path);
-                }
-            }
+        if path.is_file()
+            && let Some(ext) = path.extension()
+            && ext == "yaml"
+        {
+            inputs.push(path);
         }
     }
     Ok(inputs)

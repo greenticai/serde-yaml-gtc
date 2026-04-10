@@ -113,8 +113,7 @@ impl<'input> Parser<'input> {
                 let reader = match pinned.reader.as_mut() {
                     Some(reader) => reader,
                     None => {
-                        pinned.read_error =
-                            Some(io::Error::new(io::ErrorKind::Other, "reader is not set"));
+                        pinned.read_error = Some(io::Error::other("reader is not set"));
                         *size_read = 0;
                         return 0;
                     }
@@ -375,7 +374,7 @@ mod tests {
 
     impl Read for FailingReader {
         fn read(&mut self, _buf: &mut [u8]) -> io::Result<usize> {
-            Err(io::Error::new(io::ErrorKind::Other, "fail"))
+            Err(io::Error::other("fail"))
         }
     }
 

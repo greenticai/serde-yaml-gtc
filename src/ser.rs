@@ -73,7 +73,7 @@ impl SerializerOptions {
 }
 
 thread_local! {
-    static ANCHOR_REGISTRY: RefCell<Vec<AnchorRegistry>> = RefCell::new(Vec::new());
+    static ANCHOR_REGISTRY: RefCell<Vec<AnchorRegistry>> = const { RefCell::new(Vec::new()) };
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -91,14 +91,14 @@ struct AnchorKey {
 impl AnchorKey {
     fn from_rc<T>(rc: &Rc<T>) -> Self {
         Self {
-            ptr: Rc::as_ptr(rc) as *const T as usize,
+            ptr: Rc::as_ptr(rc) as usize,
             kind: PointerKind::Rc,
         }
     }
 
     fn from_arc<T>(arc: &Arc<T>) -> Self {
         Self {
-            ptr: Arc::as_ptr(arc) as *const T as usize,
+            ptr: Arc::as_ptr(arc) as usize,
             kind: PointerKind::Arc,
         }
     }
@@ -514,21 +514,16 @@ where
     _anchor_guard: AnchorRegistryGuard,
 }
 
+#[derive(Default)]
 enum State {
     /// Serializer is idle and no special handling is in progress. This
     /// variant is returned by `Default`.
+    #[default]
     NothingInParticular,
     CheckForTag,
     CheckForDuplicateTag,
     FoundTag(String),
     AlreadyTagged,
-}
-
-impl Default for State {
-    fn default() -> Self {
-        // New serializers start out with no special state.
-        State::NothingInParticular
-    }
 }
 
 impl<W> Serializer<W>
@@ -922,14 +917,14 @@ where
         self.serialize_str(variant)
     }
 
-    fn serialize_newtype_struct<T>(mut self, name: &'static str, value: &T) -> Result<()>
+    fn serialize_newtype_struct<T>(self, name: &'static str, value: &T) -> Result<()>
     where
         T: ?Sized + ser::Serialize,
     {
         if name == ALIAS_NEWTYPE {
-            value.serialize(AliasHelper { ser: &mut self })
+            value.serialize(AliasHelper { ser: self })
         } else if name == ANCHOR_NEWTYPE {
-            value.serialize(AnchorHelper { ser: &mut self })
+            value.serialize(AnchorHelper { ser: self })
         } else if name == FLOW_SEQ_NEWTYPE {
             self.next_sequence_style = Some(SequenceStyle::Flow);
             let result = value.serialize(&mut *self);
