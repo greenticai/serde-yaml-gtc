@@ -361,12 +361,7 @@ mod tests {
         let yaml = ":";
         for _ in 0..100 {
             let mut parser = Parser::new(Cow::Borrowed(yaml.as_bytes())).unwrap();
-            loop {
-                match parser.next() {
-                    Ok(_) => continue,
-                    Err(_) => break,
-                }
-            }
+            while parser.next().is_ok() {}
         }
     }
 
