@@ -13,19 +13,20 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  CARGO_TERM_COLOR: always
-
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+  ci:
+    uses: greenticai/.github/.github/workflows/pr-ci.yml@main
+    with:
+      variant: host
+      # Submodule carries the yaml-test-suite fixtures required at test
+      # time.
+      checkout-submodules: recursive
+      # Grace-period: allow all clippy lints. The repo currently has
+      # ~4 errors + ~36 warnings worth of pre-existing clippy debt
+      # (approximate_constants, needless_borrow, as_bytes-after-slice,
+      # …) that were never gated by the old ci.yml (`cargo build`
+      # + `cargo test` only). A follow-up lint-cleanup PR will lift
+      # this allow and let pr-ci.yml's default `-D warnings` take
+      # over. See plans/binary-bifurcation.md A.4 deferral.
+      clippy-args: "--workspace --all-targets --all-features -- -A clippy::all"
+      test-args: "--workspace --all-features"
