@@ -52,7 +52,7 @@ fn yaml_pw8x_anchors_on_empty_scalars() {
 
     // First, parse the outer test-suite wrapper.
     let cases: Vec<CaseEnvelope> =
-        serde_yaml::from_str(&yaml).unwrap_or_else(|e| panic!("failed to parse PW8X wrapper: {e}"));
+        serde_yaml::from_str(yaml).unwrap_or_else(|e| panic!("failed to parse PW8X wrapper: {e}"));
     assert_eq!(cases.len(), 1, "expected exactly one case in the wrapper");
 
     // Now parse the inner YAML content into the intended structure.

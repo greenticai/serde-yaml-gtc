@@ -45,7 +45,7 @@ block: > # lala
   abcde
 "#;
 
-    let doc: Doc = serde_yaml::from_str(&yaml)?;
+    let doc: Doc = serde_yaml::from_str(yaml)?;
 
     // Assert parsed values
     assert_eq!(doc.a, "double quotes");

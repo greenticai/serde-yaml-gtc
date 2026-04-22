@@ -190,7 +190,7 @@ pub struct BudgetReport {
 /// - This is **streaming** and does not allocate a DOM.
 /// - Depth counts nested `SequenceStart` and `MappingStart`.
 pub fn check_yaml_budget(input: &str, budget: &Budget) -> Result<BudgetReport, ScanError> {
-    let mut parser = Parser::new_from_str(input);
+    let parser = Parser::new_from_str(input);
 
     let mut report = BudgetReport::default();
     let mut depth: usize = 0;
@@ -209,7 +209,7 @@ pub fn check_yaml_budget(input: &str, budget: &Budget) -> Result<BudgetReport, S
     }
 
     // Iterate the event stream; this avoids implementing EventReceiver.
-    while let Some(item) = parser.next() {
+    for item in parser {
         let (ev, _span) = item?; // propagate ScanError
 
         report.events += 1;
@@ -261,14 +261,13 @@ pub fn check_yaml_budget(input: &str, budget: &Budget) -> Result<BudgetReport, S
                         total_scalar_bytes: report.total_scalar_bytes
                     });
                 }
-                if anchor_id != 0 {
-                    if defined_anchors.insert(anchor_id) {
-                        if defined_anchors.len() > budget.max_anchors {
-                            breach!(BudgetBreach::Anchors {
-                                anchors: defined_anchors.len()
-                            });
-                        }
-                    }
+                if anchor_id != 0
+                    && defined_anchors.insert(anchor_id)
+                    && defined_anchors.len() > budget.max_anchors
+                {
+                    breach!(BudgetBreach::Anchors {
+                        anchors: defined_anchors.len()
+                    });
                 }
             }
 
@@ -288,14 +287,13 @@ pub fn check_yaml_budget(input: &str, budget: &Budget) -> Result<BudgetReport, S
                         depth: report.max_depth
                     });
                 }
-                if anchor_id != 0 {
-                    if defined_anchors.insert(anchor_id) {
-                        if defined_anchors.len() > budget.max_anchors {
-                            breach!(BudgetBreach::Anchors {
-                                anchors: defined_anchors.len()
-                            });
-                        }
-                    }
+                if anchor_id != 0
+                    && defined_anchors.insert(anchor_id)
+                    && defined_anchors.len() > budget.max_anchors
+                {
+                    breach!(BudgetBreach::Anchors {
+                        anchors: defined_anchors.len()
+                    });
                 }
             }
             Event::SequenceEnd => {
@@ -322,14 +320,13 @@ pub fn check_yaml_budget(input: &str, budget: &Budget) -> Result<BudgetReport, S
                         depth: report.max_depth
                     });
                 }
-                if anchor_id != 0 {
-                    if defined_anchors.insert(anchor_id) {
-                        if defined_anchors.len() > budget.max_anchors {
-                            breach!(BudgetBreach::Anchors {
-                                anchors: defined_anchors.len()
-                            });
-                        }
-                    }
+                if anchor_id != 0
+                    && defined_anchors.insert(anchor_id)
+                    && defined_anchors.len() > budget.max_anchors
+                {
+                    breach!(BudgetBreach::Anchors {
+                        anchors: defined_anchors.len()
+                    });
                 }
             }
             Event::MappingEnd => {
@@ -387,7 +384,7 @@ mod tests {
         let r = check_yaml_budget(y, &b).unwrap();
         assert!(r.breached.is_none());
         assert_eq!(r.documents, 1);
-        assert_eq!(r.nodes > 0, true);
+        assert!(r.nodes > 0);
     }
 
     #[test]
@@ -401,8 +398,10 @@ d: *A
 e: *A
 "#;
 
-        let mut b = Budget::default();
-        b.max_aliases = 3; // set a tiny limit for the test
+        let b = Budget {
+            max_aliases: 3, // set a tiny limit for the test
+            ..Budget::default()
+        };
 
         let rep = check_yaml_budget(y, &b).unwrap();
         assert!(matches!(rep.breached, Some(BudgetBreach::Aliases { .. })));
@@ -420,8 +419,10 @@ e: *A
             y.push(']');
         }
 
-        let mut b = Budget::default();
-        b.max_depth = 150;
+        let b = Budget {
+            max_depth: 150,
+            ..Budget::default()
+        };
 
         let rep = check_yaml_budget(&y, &b).unwrap();
         assert!(matches!(rep.breached, Some(BudgetBreach::Depth { .. })));
@@ -431,8 +432,10 @@ e: *A
     fn anchors_limit_trips() {
         // Three distinct anchors defined on scalar nodes
         let y = "a: &A 1\nb: &B 2\nc: &C 3\n";
-        let mut b = Budget::default();
-        b.max_anchors = 2;
+        let b = Budget {
+            max_anchors: 2,
+            ..Budget::default()
+        };
         let rep = check_yaml_budget(y, &b).unwrap();
         assert!(matches!(
             rep.breached,

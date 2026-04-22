@@ -17,7 +17,7 @@ fn test_value_from_iter_integers() {
 
 #[test]
 fn test_value_from_iter_strings() {
-    let items = vec!["a", "b", "c"];
+    let items = ["a", "b", "c"];
     let value = Value::from_iter(items.iter().cloned());
     let mut expected = Sequence::new();
     expected.elements = vec![

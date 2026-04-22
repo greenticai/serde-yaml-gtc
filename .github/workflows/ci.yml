@@ -4,10 +4,7 @@ on:
   push:
     branches: ["main"]
   pull_request:
-    branches: ["main"]
-
-permissions:
-  contents: read
+    branches: ["main", "develop"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -15,18 +12,10 @@ concurrency:
 
 jobs:
   ci:
-    uses: greenticai/.github/.github/workflows/pr-ci.yml@main
+    uses: greenticai/.github/.github/workflows/host-crate-ci.yml@main
     with:
-      variant: host
-      # Submodule carries the yaml-test-suite fixtures required at test
-      # time.
-      checkout-submodules: recursive
-      # Grace-period: allow all clippy lints. The repo currently has
-      # ~4 errors + ~36 warnings worth of pre-existing clippy debt
-      # (approximate_constants, needless_borrow, as_bytes-after-slice,
-      # …) that were never gated by the old ci.yml (`cargo build`
-      # + `cargo test` only). A follow-up lint-cleanup PR will lift
-      # this allow and let pr-ci.yml's default `-D warnings` take
-      # over. See plans/binary-bifurcation.md A.4 deferral.
+      run-semver-checks: true
+      semver-checks-package: serde_yaml_gtc
+      checkout-submodules: "recursive"
       clippy-args: "--workspace --all-targets --all-features -- -A clippy::all"
       test-args: "--workspace --all-features"

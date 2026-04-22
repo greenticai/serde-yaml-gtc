@@ -438,7 +438,7 @@ where
     T: ?Sized + Display,
 {
     let mut string = String::new();
-    if let Err(_) = fmt::write(&mut string, format_args!("{}", value)) {
+    if fmt::write(&mut string, format_args!("{}", value)).is_err() {
         return MaybeTag::Error;
     }
 
