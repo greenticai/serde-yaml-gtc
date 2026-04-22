@@ -12,7 +12,7 @@ on:
   schedule:
     # 05:35 UTC — staggered from greentic-types (05:17),
     # greentic-component (05:23), and greentic-oauth (05:29).
-    - cron: "35 5 * * *"
+    - cron: "46 3 * * *"
   workflow_dispatch:
     inputs:
       baseline-rev:
