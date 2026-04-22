@@ -17,3 +17,5 @@ jobs:
       run-semver-checks: true
       semver-checks-package: serde_yaml_gtc
       checkout-submodules: "recursive"
+      clippy-args: "--workspace --all-targets --all-features -- -A clippy::all"
+      test-args: "--workspace --all-features"
