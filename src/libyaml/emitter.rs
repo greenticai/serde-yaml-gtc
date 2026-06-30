@@ -280,10 +280,7 @@ where
         unsafe {
             match (*self.pin.ptr).write.take() {
                 Some(writer) => Ok(writer),
-                None => Err(Error::Io(io::Error::new(
-                    io::ErrorKind::Other,
-                    "emitter writer missing",
-                ))),
+                None => Err(Error::Io(io::Error::other("emitter writer missing"))),
             }
         }
     }
@@ -323,10 +320,7 @@ where
             }
         },
         None => {
-            ptr.write_error = Some(io::Error::new(
-                io::ErrorKind::Other,
-                "emitter writer missing",
-            ));
+            ptr.write_error = Some(io::Error::other("emitter writer missing"));
             0
         }
     }

@@ -54,10 +54,10 @@ fn collect_yaml_files(dir: &Path, files: &mut Vec<PathBuf>) -> std::io::Result<(
         let path = entry.path();
         if path.is_dir() {
             collect_yaml_files(&path, files)?;
-        } else if let Some(ext) = path.extension().and_then(|s| s.to_str()) {
-            if ext.eq_ignore_ascii_case("yaml") || ext.eq_ignore_ascii_case("yml") {
-                files.push(path);
-            }
+        } else if let Some(ext) = path.extension().and_then(|s| s.to_str())
+            && (ext.eq_ignore_ascii_case("yaml") || ext.eq_ignore_ascii_case("yml"))
+        {
+            files.push(path);
         }
     }
     Ok(())

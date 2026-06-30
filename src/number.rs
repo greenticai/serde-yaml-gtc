@@ -187,10 +187,10 @@ impl FromStr for Number {
         if let Ok(result) = de::visit_int(NumberVisitor, repr) {
             return result;
         }
-        if !de::digits_but_not_number(repr) {
-            if let Some(float) = de::parse_f64(repr) {
-                return Ok(float.into());
-            }
+        if !de::digits_but_not_number(repr)
+            && let Some(float) = de::parse_f64(repr)
+        {
+            return Ok(float.into());
         }
         Err(error::new(ErrorImpl::FailedToParseNumber))
     }

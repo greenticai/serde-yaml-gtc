@@ -61,7 +61,7 @@ retries: 4
 "#;
 
     let configs = Deserializer::from_str(yaml_input)
-        .map(|doc| Config::deserialize(doc))
+        .map(Config::deserialize)
         .collect::<Result<Vec<_>, _>>()?; // <- question operator
 
     Ok(configs) // Ok on successful parsing or would be error on failure

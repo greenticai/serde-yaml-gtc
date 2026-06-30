@@ -37,7 +37,7 @@ fn test_custom_yaml_tags() {
             assert_eq!(tagged.tag, "!CustomTag");
             match tagged.value {
                 serde_yaml::Value::Mapping(map) => {
-                    assert!(map.contains_key(&serde_yaml::Value::String("key".into(), None)));
+                    assert!(map.contains_key(serde_yaml::Value::String("key".into(), None)));
                 }
                 other => panic!("Expected mapping inside tag, got: {other:?}"),
             }

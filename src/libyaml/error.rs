@@ -194,6 +194,35 @@ impl Debug for Mark {
     }
 }
 
+fn display_lossy(mut bytes: &[u8], formatter: &mut fmt::Formatter) -> fmt::Result {
+    fn write_filtered(s: &str, f: &mut fmt::Formatter) -> fmt::Result {
+        for ch in s.chars() {
+            if ch.is_control() && ch != '\n' && ch != '\r' && ch != '\t' {
+                f.write_char(char::REPLACEMENT_CHARACTER)?;
+            } else {
+                f.write_char(ch)?;
+            }
+        }
+        Ok(())
+    }
+
+    loop {
+        match str::from_utf8(bytes) {
+            Ok(valid) => return write_filtered(valid, formatter),
+            Err(utf8_error) => {
+                let valid_up_to = utf8_error.valid_up_to();
+                write_filtered(str::from_utf8(&bytes[..valid_up_to]).unwrap(), formatter)?;
+                formatter.write_char(char::REPLACEMENT_CHARACTER)?;
+                if let Some(error_len) = utf8_error.error_len() {
+                    bytes = &bytes[valid_up_to + error_len..];
+                } else {
+                    return Ok(());
+                }
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::libyaml::emitter::{Emitter, Error as EmitterError, Event};
@@ -222,35 +251,6 @@ mod tests {
             let _ = format!("{:?}", inner);
         } else {
             panic!("expected libyaml error");
-        }
-    }
-}
-
-fn display_lossy(mut bytes: &[u8], formatter: &mut fmt::Formatter) -> fmt::Result {
-    fn write_filtered(s: &str, f: &mut fmt::Formatter) -> fmt::Result {
-        for ch in s.chars() {
-            if ch.is_control() && ch != '\n' && ch != '\r' && ch != '\t' {
-                f.write_char(char::REPLACEMENT_CHARACTER)?;
-            } else {
-                f.write_char(ch)?;
-            }
-        }
-        Ok(())
-    }
-
-    loop {
-        match str::from_utf8(bytes) {
-            Ok(valid) => return write_filtered(valid, formatter),
-            Err(utf8_error) => {
-                let valid_up_to = utf8_error.valid_up_to();
-                write_filtered(str::from_utf8(&bytes[..valid_up_to]).unwrap(), formatter)?;
-                formatter.write_char(char::REPLACEMENT_CHARACTER)?;
-                if let Some(error_len) = utf8_error.error_len() {
-                    bytes = &bytes[valid_up_to + error_len..];
-                } else {
-                    return Ok(());
-                }
-            }
         }
     }
 }

@@ -85,42 +85,6 @@ impl<'a> CStr<'a> {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::ptr::NonNull;
-    use std::thread;
-
-    #[test]
-    fn send_sync_static() {
-        static BYTES: &[u8] = b"static\0";
-        let cstr = CStr::from_bytes_with_nul(BYTES);
-        thread::spawn(move || {
-            assert_eq!(cstr.to_bytes().unwrap(), b"static");
-        })
-        .join()
-        .unwrap();
-    }
-
-    #[test]
-    fn len_ok() {
-        static BYTES: &[u8] = b"abc\0";
-        let cstr = CStr::from_bytes_with_nul(BYTES);
-        assert_eq!(cstr.len().unwrap(), 3);
-    }
-
-    #[test]
-    fn len_too_long() {
-        let mut bytes = vec![b'a'; MAX_NAME_LENGTH + 1];
-        bytes.push(0);
-        let ptr = NonNull::new(bytes.as_mut_ptr() as *mut i8).unwrap();
-        // SAFETY: `ptr` comes from `bytes` which is NUL-terminated and lives for
-        // the duration of the test.
-        let cstr = unsafe { CStr::from_ptr(ptr) };
-        assert!(cstr.len().is_err());
-    }
-}
-
 impl Display for CStr<'_> {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         let ptr = self.ptr.as_ptr();
@@ -212,4 +176,40 @@ pub(crate) fn debug_lossy(mut bytes: &[u8], formatter: &mut fmt::Formatter) -> f
     }
 
     formatter.write_char('"')
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::ptr::NonNull;
+    use std::thread;
+
+    #[test]
+    fn send_sync_static() {
+        static BYTES: &[u8] = b"static\0";
+        let cstr = CStr::from_bytes_with_nul(BYTES);
+        thread::spawn(move || {
+            assert_eq!(cstr.to_bytes().unwrap(), b"static");
+        })
+        .join()
+        .unwrap();
+    }
+
+    #[test]
+    fn len_ok() {
+        static BYTES: &[u8] = b"abc\0";
+        let cstr = CStr::from_bytes_with_nul(BYTES);
+        assert_eq!(cstr.len().unwrap(), 3);
+    }
+
+    #[test]
+    fn len_too_long() {
+        let mut bytes = vec![b'a'; MAX_NAME_LENGTH + 1];
+        bytes.push(0);
+        let ptr = NonNull::new(bytes.as_mut_ptr() as *mut i8).unwrap();
+        // SAFETY: `ptr` comes from `bytes` which is NUL-terminated and lives for
+        // the duration of the test.
+        let cstr = unsafe { CStr::from_ptr(ptr) };
+        assert!(cstr.len().is_err());
+    }
 }

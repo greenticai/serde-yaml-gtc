@@ -27,6 +27,7 @@ fn test_value_number_cross_type_ordering_equality() {
 }
 
 #[test]
+#[allow(clippy::cmp_owned)]
 fn test_value_number_ordering_int_float() {
     // Ensure mixed int/float comparisons obey numeric order.
     assert!(Value::from(1u64) < Value::from(2.0f64));

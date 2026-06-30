@@ -49,18 +49,18 @@ impl<'input> Loader<'input> {
                 Parser::new(Cow::Borrowed(bytes))?
             }
             Progress::Slice(bytes) => {
-                if let Some(b) = &options.budget {
-                    if let Ok(s) = std::str::from_utf8(bytes) {
-                        match check_yaml_budget(s, b) {
-                            Ok(rep) => {
-                                if let Some(breach) = rep.breached {
-                                    return Err(error::new(ErrorImpl::BudgetExceeded(breach)));
-                                }
+                if let Some(b) = &options.budget
+                    && let Ok(s) = std::str::from_utf8(bytes)
+                {
+                    match check_yaml_budget(s, b) {
+                        Ok(rep) => {
+                            if let Some(breach) = rep.breached {
+                                return Err(error::new(ErrorImpl::BudgetExceeded(breach)));
                             }
-                            Err(se) => {
-                                let pse: PreScanError = (&se).into();
-                                return Err(error::new(ErrorImpl::PreScan(pse)));
-                            }
+                        }
+                        Err(se) => {
+                            let pse: PreScanError = (&se).into();
+                            return Err(error::new(ErrorImpl::PreScan(pse)));
                         }
                     }
                 }
@@ -202,11 +202,11 @@ mod tests {
         let document = loader.next_document().unwrap();
         let mut found = false;
         for (event, _) in &document.events {
-            if let Event::Scalar(scalar) = event {
-                if let Some(name) = &scalar.anchor {
-                    assert_eq!(name, "id");
-                    found = true;
-                }
+            if let Event::Scalar(scalar) = event
+                && let Some(name) = &scalar.anchor
+            {
+                assert_eq!(name, "id");
+                found = true;
             }
         }
         assert!(found, "anchored scalar not found");
@@ -223,11 +223,11 @@ mod tests {
         let document = loader.next_document().unwrap();
         let mut found = false;
         for (event, _) in &document.events {
-            if let Event::SequenceStart(sequence) = event {
-                if let Some(name) = &sequence.anchor {
-                    assert_eq!(name, "id");
-                    found = true;
-                }
+            if let Event::SequenceStart(sequence) = event
+                && let Some(name) = &sequence.anchor
+            {
+                assert_eq!(name, "id");
+                found = true;
             }
         }
         assert!(found, "anchored sequence not found");
@@ -244,11 +244,11 @@ mod tests {
         let document = loader.next_document().unwrap();
         let mut found = false;
         for (event, _) in &document.events {
-            if let Event::MappingStart(mapping) = event {
-                if let Some(name) = &mapping.anchor {
-                    assert_eq!(name, "id");
-                    found = true;
-                }
+            if let Event::MappingStart(mapping) = event
+                && let Some(name) = &mapping.anchor
+            {
+                assert_eq!(name, "id");
+                found = true;
             }
         }
         assert!(found, "anchored mapping not found");

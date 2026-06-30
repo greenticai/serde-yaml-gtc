@@ -853,8 +853,8 @@ impl<'de, 'document> DeserializerFromEvents<'de, 'document> {
                 None => return Err(error::new(ErrorImpl::RecursionLimitExceeded(mark))),
             };
         }
-        let result = f(self);
-        result
+
+        f(self)
     }
 
     pub(crate) fn parse_value(&mut self) -> Result<Value> {
@@ -898,18 +898,17 @@ impl<'de, 'document> DeserializerFromEvents<'de, 'document> {
                     // Capture key mark before parsing key value
                     let (_evt, key_mark) = self.peek_event_mark()?;
                     let key = self.parse_value()?;
-                    if let Some(ref marks) = first_marks {
-                        if let Some(first_mark) = marks.get(&key).cloned() {
-                            let msg = DuplicateKeyError::from_value_with_marks(
-                                &key, first_mark, key_mark,
-                            )
-                            .to_string();
-                            return Err(error::fix_mark(
-                                error::new(ErrorImpl::Message(msg, None)),
-                                key_mark,
-                                self.path,
-                            ));
-                        }
+                    if let Some(ref marks) = first_marks
+                        && let Some(first_mark) = marks.get(&key).cloned()
+                    {
+                        let msg =
+                            DuplicateKeyError::from_value_with_marks(&key, first_mark, key_mark)
+                                .to_string();
+                        return Err(error::fix_mark(
+                            error::new(ErrorImpl::Message(msg, None)),
+                            key_mark,
+                            self.path,
+                        ));
                     }
                     match strategy {
                         DuplicateKeyStrategy::FirstWins => {
@@ -1484,10 +1483,10 @@ pub fn parse_f64(scalar: &str) -> Option<f64> {
     if let ".nan" | ".NaN" | ".NAN" = scalar {
         return Some(f64::NAN.copysign(1.0));
     }
-    if let Ok(float) = unpositive.parse::<f64>() {
-        if float.is_finite() {
-            return Some(float);
-        }
+    if let Ok(float) = unpositive.parse::<f64>()
+        && float.is_finite()
+    {
+        return Some(float);
     }
     None
 }
@@ -1550,10 +1549,10 @@ where
         Ok(result) => return result,
         Err(visitor) => visitor,
     };
-    if !digits_but_not_number(v) {
-        if let Some(float) = parse_f64(v) {
-            return visitor.visit_f64(float);
-        }
+    if !digits_but_not_number(v)
+        && let Some(float) = parse_f64(v)
+    {
+        return visitor.visit_f64(float);
     }
     if let Some(borrowed) = parse_borrowed_str(v, repr, style) {
         visitor.visit_borrowed_str(borrowed)
@@ -2442,5 +2441,5 @@ where
 /// assert_eq!(cfgs[0].name, "First");
 /// ```
 pub fn from_multiple<T: DeserializeOwned>(input: &str) -> Result<Vec<T>, Error> {
-    from_str_multi(input).map_err(Into::into)
+    from_str_multi(input)
 }

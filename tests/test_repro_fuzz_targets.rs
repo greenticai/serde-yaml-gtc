@@ -69,7 +69,7 @@ fn run_duplicate_keys_on(data: &[u8]) -> bool {
     if exceeds_yaml_budget(&yaml_nested, &budget).is_err() {
         return true;
     }
-    return false;
+    false
 }
 
 // ===== flow_collections =====
@@ -123,17 +123,14 @@ fn run_large_scalars_on(data: &[u8]) -> bool {
     if exceeds_yaml_budget(&yaml_block, &budget).is_err() {
         return true;
     }
-    return false;
+    false
 }
 
 // Test 1: aliases/merges repro
 #[test]
 fn repro_alias_merges_crashes() {
     let base = Path::new("tests/fuzz_crashes/alias_merges");
-    let files = match collect_files_recursive(base) {
-        Ok(v) => v,
-        Err(_) => Vec::new(),
-    };
+    let files = collect_files_recursive(base).unwrap_or_default();
     if files.is_empty() {
         return;
     }
@@ -158,10 +155,7 @@ fn repro_alias_merges_crashes() {
 #[test]
 fn repro_duplicate_keys_crashes() {
     let base = Path::new("tests/fuzz_crashes/duplicate_keys");
-    let files = match collect_files_recursive(base) {
-        Ok(v) => v,
-        Err(_) => Vec::new(),
-    };
+    let files = collect_files_recursive(base).unwrap_or_default();
     if files.is_empty() {
         return;
     }
@@ -186,10 +180,7 @@ fn repro_duplicate_keys_crashes() {
 #[test]
 fn repro_flow_collections_crashes() {
     let base = Path::new("tests/fuzz_crashes/flow_collections");
-    let files = match collect_files_recursive(base) {
-        Ok(v) => v,
-        Err(_) => Vec::new(),
-    };
+    let files = collect_files_recursive(base).unwrap_or_default();
     if files.is_empty() {
         return;
     }
@@ -214,10 +205,7 @@ fn repro_flow_collections_crashes() {
 #[test]
 fn repro_large_scalars_crashes() {
     let base = Path::new("tests/fuzz_crashes/large_scalars");
-    let files = match collect_files_recursive(base) {
-        Ok(v) => v,
-        Err(_) => Vec::new(),
-    };
+    let files = collect_files_recursive(base).unwrap_or_default();
     if files.is_empty() {
         return;
     }

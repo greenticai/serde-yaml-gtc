@@ -971,12 +971,12 @@ mod tests {
         "#
         );
         let mut value: Value = from_str_value_preserve(yaml).unwrap();
-        if let Value::Mapping(map) = &mut value {
-            if let Some(Value::Mapping(a_map)) = map.get_mut("a") {
-                let mut clone = a_map.clone();
-                clone.id = a_map.id;
-                a_map.insert("self".into(), Value::Mapping(clone));
-            }
+        if let Value::Mapping(map) = &mut value
+            && let Some(Value::Mapping(a_map)) = map.get_mut("a")
+        {
+            let mut clone = a_map.clone();
+            clone.id = a_map.id;
+            a_map.insert("self".into(), Value::Mapping(clone));
         }
         let err = value.apply_merge().unwrap_err();
         assert_eq!(err.to_string(), "encountered recursive merge alias");
