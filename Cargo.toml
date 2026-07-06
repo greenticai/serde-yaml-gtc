@@ -1,6 +1,6 @@
 [package]
 name = "serde_yaml_gtc"
-version = "2.6.0-dev.0"
+version = "2.6.0"
 authors = [
     "Bourumir Wyngs <bourumir.wyngs@gmail.com>",
 ]
