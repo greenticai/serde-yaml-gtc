@@ -247,8 +247,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde_yaml_bw"
-version = "2.5.2"
+name = "serde_yaml_bw-fuzz"
+version = "0.0.0"
+dependencies = [
+ "libfuzzer-sys",
+ "serde",
+ "serde_yaml_gtc",
+]
+
+[[package]]
+name = "serde_yaml_gtc"
+version = "2.6.0"
 dependencies = [
  "base64",
  "indexmap",
@@ -259,15 +268,6 @@ dependencies = [
  "serde",
  "unsafe-libyaml-norway",
  "zmij",
-]
-
-[[package]]
-name = "serde_yaml_bw-fuzz"
-version = "0.0.0"
-dependencies = [
- "libfuzzer-sys",
- "serde",
- "serde_yaml_bw",
 ]
 
 [[package]]
