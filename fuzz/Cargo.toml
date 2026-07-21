@@ -11,6 +11,7 @@ cargo-fuzz = true
 libfuzzer-sys = "0.4"
 serde = { version = "1.0.218", features = ["derive"] }
 [dependencies.serde_yaml_bw]
+package = "serde_yaml_gtc"
 path = ".."
 
 [[bin]]
